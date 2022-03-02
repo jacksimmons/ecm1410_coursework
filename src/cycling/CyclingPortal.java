@@ -18,22 +18,24 @@ public class CyclingPortal implements CyclingPortalInterface {
     
     // Attributes
     private int[] raceIds;
+	private Map<int, int> numberOfStagesPerRace;
 
     // Constructor
     public CyclingPortal()
     {
-        raceIds = new int[1];
+        raceIds = new int[15]; // Only 15 racers
     }
 
     // Methods
 	@Override
 	public int[] getRaceIds() {
+		//
 		return raceIds;
 	}
 
 	@Override
 	public int createRace(String name, String description) throws IllegalNameException, InvalidNameException {
-		// TODO Auto-generated method stub
+		// 
 		return 0;
 	}
 
@@ -51,8 +53,8 @@ public class CyclingPortal implements CyclingPortalInterface {
 
 	@Override
 	public int getNumberOfStages(int raceId) throws IDNotRecognisedException {
-		// TODO Auto-generated method stub
-		return 0;
+		//
+		return numberOfStagesPerRace[raceId];
 	}
 
 	@Override
@@ -66,7 +68,7 @@ public class CyclingPortal implements CyclingPortalInterface {
 	@Override
 	public int[] getRaceStages(int raceId) throws IDNotRecognisedException {
 		// TODO Auto-generated method stub
-		return null;
+		return 
 	}
 
 	@Override
