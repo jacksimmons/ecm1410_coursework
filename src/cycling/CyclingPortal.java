@@ -27,8 +27,9 @@ public class CyclingPortal implements CyclingPortalInterface {
     // Constructor
     public CyclingPortal()
     {
-        this.raceIds = new int[15]; // Only 15 racers
-		this.riders = new Rider[15];
+        this.raceIds = new int[15];
+		this.riders = new Map<int, Rider>();
+		this.raceStages = new Map<int, int>();
 		this.highestRiderId = 0;
 		this.highestTeamId = 0;
     }
