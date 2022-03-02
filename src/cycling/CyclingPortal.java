@@ -19,20 +19,25 @@ public class CyclingPortal implements CyclingPortalInterface {
     // Attributes
     private int[] raceIds;
 	private Map<int, int> raceStages;
-	private ArrayList<Map<String, String>> riders;
+	private Map<int, Rider> riders;
+	private int highestRiderId;
+	private Map<int, Team> teams;
+	private int highestTeamId;
 
     // Constructor
     public CyclingPortal()
     {
-        raceIds = new int[15]; // Only 15 racers
-		riders = new Rider[15];
+        this.raceIds = new int[15]; // Only 15 racers
+		this.riders = new Rider[15];
+		this.highestRiderId = 0;
+		this.highestTeamId = 0;
     }
 
     // Methods
 	@Override
 	public int[] getRaceIds() {
 		//
-		return raceIds;
+		return this.raceIds;
 	}
 
 	@Override
@@ -56,7 +61,7 @@ public class CyclingPortal implements CyclingPortalInterface {
 	@Override
 	public int getNumberOfStages(int raceId) throws IDNotRecognisedException {
 		//
-		return raceStages[raceId].length;
+		return this.raceStages[raceId].length;
 	}
 
 	@Override
@@ -70,7 +75,7 @@ public class CyclingPortal implements CyclingPortalInterface {
 	@Override
 	public int[] getRaceStages(int raceId) throws IDNotRecognisedException {
 		//
-		return raceStages[raceId];
+		return this.raceStages[raceId];
 	}
 
 	@Override
@@ -120,8 +125,28 @@ public class CyclingPortal implements CyclingPortalInterface {
 
 	@Override
 	public int createTeam(String name, String description) throws IllegalNameException, InvalidNameException {
-		// TODO Auto-generated method stub
-		return 0;
+		//
+		if (name.length <= 30 && name != null && name != "")
+		{
+			for (i=0; i < name.length; i++)
+			{
+				if (isWhitespace(name[i]))
+				{
+					throw new InvalidNameException("No whitespace allowed.");
+					// code end
+				}
+			}
+
+			// if (illegal name)
+			// ! check for IllegalNameException
+			// else
+			// Team team = new Team(name, description);
+		}
+		else
+		{
+			throw new InvalidNameException("Incorrect name length (1 to 30 characters).")
+			// code end
+		}
 	}
 
 	@Override
@@ -145,15 +170,17 @@ public class CyclingPortal implements CyclingPortalInterface {
 	@Override
 	public int createRider(int teamID, String name, int yearOfBirth)
 			throws IDNotRecognisedException, IllegalArgumentException {
-		
-		Rider rider = new Rider(teamID, name, yearOfBirth)
-		return 0;
+		//
+		Rider rider = new Rider(teamID, name, yearOfBirth);
+		this.highestRiderId++;
+		this.riders[this.highestRiderId] = rider;
+		return this.highestRiderId;
 	}
 
 	@Override
 	public void removeRider(int riderId) throws IDNotRecognisedException {
 		// TODO Auto-generated method stub
-
+		riders.remove(riderId);
 	}
 
 	@Override
