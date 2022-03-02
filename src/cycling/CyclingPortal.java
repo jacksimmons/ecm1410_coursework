@@ -18,12 +18,14 @@ public class CyclingPortal implements CyclingPortalInterface {
     
     // Attributes
     private int[] raceIds;
-	private Map<int, int> numberOfStagesPerRace;
+	private Map<int, int> raceStages;
+	private ArrayList<Map<String, String>> riders;
 
     // Constructor
     public CyclingPortal()
     {
         raceIds = new int[15]; // Only 15 racers
+		riders = new Rider[15];
     }
 
     // Methods
@@ -54,7 +56,7 @@ public class CyclingPortal implements CyclingPortalInterface {
 	@Override
 	public int getNumberOfStages(int raceId) throws IDNotRecognisedException {
 		//
-		return numberOfStagesPerRace[raceId];
+		return raceStages[raceId].length;
 	}
 
 	@Override
@@ -67,8 +69,8 @@ public class CyclingPortal implements CyclingPortalInterface {
 
 	@Override
 	public int[] getRaceStages(int raceId) throws IDNotRecognisedException {
-		// TODO Auto-generated method stub
-		return 
+		//
+		return raceStages[raceId];
 	}
 
 	@Override
@@ -143,7 +145,8 @@ public class CyclingPortal implements CyclingPortalInterface {
 	@Override
 	public int createRider(int teamID, String name, int yearOfBirth)
 			throws IDNotRecognisedException, IllegalArgumentException {
-		// TODO Auto-generated method stub
+		
+		Rider rider = new Rider(teamID, name, yearOfBirth)
 		return 0;
 	}
 
