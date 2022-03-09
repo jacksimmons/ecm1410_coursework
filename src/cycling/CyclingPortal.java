@@ -72,7 +72,6 @@ public class CyclingPortal implements CyclingPortalInterface {
 
 	@Override
 	public int[] getRaceStages(int raceId) throws IDNotRecognisedException {
-		//
 		return this.raceStages[raceId];
 	}
 
@@ -135,28 +134,54 @@ public class CyclingPortal implements CyclingPortalInterface {
 				}
 			}
 
-			// if (illegal name)
-			// ! check for IllegalNameException
-			// else
-			// Team team = new Team(name, description);
+			for (i=0; i<this.teams.length; i++)
+			{
+				if (this.teams[i].getName() == name)
+				{
+					throw new IllegalNameException("This name is already taken.");
+					// code end
+				}
+			}
+
+			// Set ID to one more than the last created team's ID, or 0 if there isn't one.
+			int id;
+			if (this.teams.length > 0)
+			{
+				id = this.teams[this.teams.length - 1].getId() + 1;
+			}
+			else
+			{
+				id = 0;
+			}
+			Team team = new Team(id, name, description);
+			return team.getId();
 		}
 		else
 		{
 			throw new InvalidNameException("Incorrect name length (1 to 30 characters).")
 			// code end
 		}
+		return -1; // !
 	}
 
 	@Override
 	public void removeTeam(int teamId) throws IDNotRecognisedException {
-		// TODO Auto-generated method stub
+		for (i=0; i<this.teams.length; i++)
+		{
+			if (this.teams[i].getId() == teamId)
+			{
+				this.teams.remove(i);
+				return;
+			}
+			throw new IDNotRecognisedException("No teams have the ID provided.")
+		}
 
 	}
 
 	@Override
 	public int[] getTeams() {
-		// TODO Auto-generated method stub
-		List<int> teamIds = new List<int>();
+		// ! annoying return type
+		int[] teamIds = new int[this.teams.length];
 		for (i=0; i<this.teams.length; i++)
 		{
 			teamIds.add(this.teams[i]);
@@ -167,17 +192,58 @@ public class CyclingPortal implements CyclingPortalInterface {
 	@Override
 	public int[] getTeamRiders(int teamId) throws IDNotRecognisedException {
 		// TODO Auto-generated method stub
-		return null;
+		for (i=0; i<this.riders.length; i++)
+		{
+			if (this.riders[i].getTeamId() == teamId)
+			{
+				throw new IDNotRecognisedException("No teams have this ID.")
+				// code end
+			}
+		}
 	}
 
 	@Override
 	public int createRider(int teamID, String name, int yearOfBirth)
 			throws IDNotRecognisedException, IllegalArgumentException {
 		//
-		Rider rider = new Rider(teamID, name, yearOfBirth);
-		this.highestRiderId++;
-		this.riders[this.highestRiderId] = rider;
-		return this.highestRiderId;
+		if (yearOfBirth >= 1900)
+		{
+			if (name != null)
+			{
+				for (i=0; i<this.teams.length; i++)
+				{
+					if (this.teams[i].getName() == name)
+					{
+						throw new IllegalNameException("This name is already taken.");
+						// code end
+					}
+				}
+
+
+
+				// Set ID to one more than the last created rider's ID, or 0 if there isn't one.
+				int id;
+				if (this.riders.length > 0)
+				{
+					id = this.riders[this.riders.length - 1].getId() + 1;
+				}
+				else
+				{
+					id = 0;
+				}
+				Rider rider = new Rider(id, teamID, name, yearOfBirth);
+				this.riders.add(rider);
+				return id;
+			}
+			else
+			{
+				throw new IllegalArgumentException("Name of the rider cannot be null.");
+			}
+		}
+		else
+		{
+			throw new IllegalArgumentException("Year of birth must be at least 1900.")
+		}
 	}
 
 	@Override

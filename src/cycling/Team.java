@@ -4,7 +4,7 @@ public class Team
     private String name;
     private String description;
 
-    public Team(String name, String description)
+    public Team(int id, String name, String description)
     {
         this.id = id;
         this.name = name;
@@ -14,5 +14,15 @@ public class Team
     public int getId()
     {
         return this.id;
+    }
+
+    public String getName()
+    {
+        return this.name;
+    }
+
+    public String getDescription()
+    {
+        return this.description;
     }
 }
