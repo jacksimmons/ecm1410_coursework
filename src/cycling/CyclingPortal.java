@@ -3,7 +3,7 @@ package cycling;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -19,19 +19,16 @@ public class CyclingPortal implements CyclingPortalInterface {
     // Attributes
     private int[] raceIds;
 	private Map<int, int> raceStages;
-	private Map<int, Rider> riders;
-	private int highestRiderId;
-	private Map<int, Team> teams;
-	private int highestTeamId;
+	private List<Rider> riders;
+	private List<Team> teams;
 
     // Constructor
     public CyclingPortal()
     {
         this.raceIds = new int[15];
-		this.riders = new Map<int, Rider>();
+		this.riders = new List<Rider>();
+		this.teams = new List<Team>();
 		this.raceStages = new Map<int, int>();
-		this.highestRiderId = 0;
-		this.highestTeamId = 0;
     }
 
     // Methods
@@ -43,7 +40,7 @@ public class CyclingPortal implements CyclingPortalInterface {
 
 	@Override
 	public int createRace(String name, String description) throws IllegalNameException, InvalidNameException {
-		// 
+		
 		return 0;
 	}
 
@@ -159,7 +156,12 @@ public class CyclingPortal implements CyclingPortalInterface {
 	@Override
 	public int[] getTeams() {
 		// TODO Auto-generated method stub
-		return null;
+		List<int> teamIds = new List<int>();
+		for (i=0; i<this.teams.length; i++)
+		{
+			teamIds.add(this.teams[i]);
+		}
+		return teamIds;
 	}
 
 	@Override
