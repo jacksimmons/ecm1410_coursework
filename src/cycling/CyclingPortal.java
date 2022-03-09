@@ -191,7 +191,7 @@ public class CyclingPortal implements CyclingPortalInterface {
 
 	@Override
 	public int[] getTeamRiders(int teamId) throws IDNotRecognisedException {
-		// TODO Auto-generated method stub
+		int[] teamRiders = new int[this.riders.length]; // Set the length 
 		for (i=0; i<this.riders.length; i++)
 		{
 			if (this.riders[i].getTeamId() == teamId)
@@ -199,6 +199,8 @@ public class CyclingPortal implements CyclingPortalInterface {
 				throw new IDNotRecognisedException("No teams have this ID.")
 				// code end
 			}
+
+
 		}
 	}
 
