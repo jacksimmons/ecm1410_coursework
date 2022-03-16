@@ -21,4 +21,19 @@ public class Rider implements Serializable
     {
         return this.id;
     }
+
+    public String getName()
+    {
+        return this.name;
+    }
+
+    public int getYearOfBirth()
+    {
+        return this.yearOfBirth
+    }
+
+    public static int getNumberOfRiders()
+    {
+        return numberOfRiders;
+    }
 }

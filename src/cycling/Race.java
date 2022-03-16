@@ -30,7 +30,7 @@ public class Race implements Serializable
         return this.description;
     }
 
-    public int getNumberOfRaces()
+    public static int getNumberOfRaces()
     {
         return numberOfRaces;
     }

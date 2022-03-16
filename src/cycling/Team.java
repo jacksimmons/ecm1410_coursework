@@ -26,4 +26,9 @@ public class Team implements Serializable
     {
         return this.description;
     }
+
+    public static int getNumberOfTeams()
+    {
+        return numberOfTeams;
+    }
 }
