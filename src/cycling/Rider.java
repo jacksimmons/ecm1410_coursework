@@ -24,9 +24,19 @@ public class Rider implements Serializable
         return this.id;
     }
 
+    public void setId(int id)
+    {
+        this.id = id;
+    }
+
     public int getTeamId()
     {
         return this.teamId;
+    }
+
+    public void setTeamId(int teamId)
+    {
+        this.teamId = teamId;
     }
 
     public int getRaceId()
@@ -34,14 +44,29 @@ public class Rider implements Serializable
         return this.raceId;
     }
 
+    public void setRaceId(int raceId)
+    {
+        this.raceId = raceId;
+    }
+
     public String getName()
     {
         return this.name;
     }
 
+    public void setName(String name)
+    {
+        this.name = name;
+    }
+
     public int getYearOfBirth()
     {
         return this.yearOfBirth
+    }
+
+    public void setYearOfBirth(int yearOfBirth)
+    {
+        this.yearOfBirth = yearOfBirth;
     }
 
     public static int getNumberOfRiders()

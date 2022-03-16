@@ -27,9 +27,19 @@ public class Segment implements Serializable
         return this.id;
     }
 
+    public void setId(int id)
+    {
+        this.id = id;
+    }
+
     public double getLocation()
     {
         return this.location;
+    }
+
+    public void setLocation(double location)
+    {
+        this.location = location;
     }
 
     public SegmentType getType()
@@ -37,14 +47,29 @@ public class Segment implements Serializable
         return this.type;
     }
 
+    public void setType(SegmentType segmentType)
+    {
+        this.type = segmentType;
+    }
+
     public double getAverageGradient()
     {
         return this.averageGradient;
     }
 
+    public void setAverageGradient(double averageGradient)
+    {
+        this.averageGradient = averageGradient;
+    }
+
     public double getLength()
     {
         return this.length;
+    }
+
+    public void setLength(double length)
+    {
+        this.length = length;
     }
 
     public static int getNumberOfSegments()

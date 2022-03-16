@@ -287,8 +287,24 @@ public class CyclingPortal implements CyclingPortalInterface {
 	public int addCategorizedClimbToStage(int stageId, Double location, SegmentType type, Double averageGradient,
 			Double length) throws IDNotRecognisedException, InvalidLocationException, InvalidStageStateException,
 			InvalidStageTypeException {
-                
-		Segment segment = new Segment(stageId, location, type, averageGradient, length);
+
+        Stage stage = this.getStage(stageId);
+        if (stage == null)
+        {
+            throw new IDNotRecognisedException("Stage ID doesn't exist.");
+            return -1;
+        }
+        else
+        {
+            if (location > stage.getLength())
+            {
+                throw new InvalidLocationException("Segment location is out of the provided stage's bounds.");
+                return -1;
+            }
+
+            if (stage)
+            Segment segment = new Segment(stageId, location, type, averageGradient, length);
+        }
 	}
 
 	@Override
