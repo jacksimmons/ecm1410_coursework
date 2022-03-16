@@ -8,7 +8,7 @@ public class Rider implements Serializable
     private int raceId;
     private String name;
     private int yearOfBirth;
-    private static int numberOfRiders;
+    private static int numberOfRiders; // Starts 0
 
     public Rider(int teamId, int raceId, String name, int yearOfBirth)
     {
