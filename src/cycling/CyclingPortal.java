@@ -134,7 +134,7 @@ public class CyclingPortal implements CyclingPortalInterface {
 		else
 		{
             // The name is not of correct size, or is null or empty.
-			throw new InvalidNameException("Race name length is of incorrect length (1 to 30 characters) or is null.")
+			throw new InvalidNameException("Race name length is of incorrect length (1 to 30 characters) or is null.");
             return -1;
         }
 	}
@@ -248,7 +248,7 @@ public class CyclingPortal implements CyclingPortalInterface {
         }
         else
         {
-            int[] raceStages = new int[this.stages.size()] // Upper bound for the length of the array
+            int[] raceStages = new int[this.stages.size()]; // Upper bound for the length of the array
             for (int i=0; i<this.stages.size(); i++)
             {
                 if (this.stages.get(i).raceId == raceId)
@@ -267,7 +267,7 @@ public class CyclingPortal implements CyclingPortalInterface {
         Stage stage = this.getStage(stageId);
         if (stage == null)
         {
-            throw new IDNotRecognisedException("This stage ID doesn't exist.")
+            throw new IDNotRecognisedException("This stage ID doesn't exist.");
         }
         else
         {
@@ -396,7 +396,7 @@ public class CyclingPortal implements CyclingPortalInterface {
         Stage stage = this.getStage(stageId);
         if (stage == null)
         {
-            throw new IDNotRecognisedException("This stage ID doesn't exist.")
+            throw new IDNotRecognisedException("This stage ID doesn't exist.");
         }
         else
         {
@@ -456,7 +456,7 @@ public class CyclingPortal implements CyclingPortalInterface {
 				this.teams.remove(i);
 				return;
 			}
-			throw new IDNotRecognisedException("No teams have the ID provided.")
+			throw new IDNotRecognisedException("No teams have the ID provided.");
 		}
 	}
 
@@ -478,7 +478,7 @@ public class CyclingPortal implements CyclingPortalInterface {
         Team team = this.getTeam(teamId);
         if (team == null)
         {
-            throw new IDNotRecognisedException("Team ID doesn't exist.")
+            throw new IDNotRecognisedException("Team ID doesn't exist.");
         }
         else
         {
@@ -522,7 +522,7 @@ public class CyclingPortal implements CyclingPortalInterface {
 		}
 		else
 		{
-			throw new IllegalArgumentException("Year of birth must be at least 1900.")
+			throw new IllegalArgumentException("Year of birth must be at least 1900.");
 		}
         return -1;
 	}
@@ -591,19 +591,19 @@ public class CyclingPortal implements CyclingPortalInterface {
 	@Override
 	public void eraseCyclingPortal() {
         // ! Objects stored in these lists will be deleted when they are reset by the garbage collector.
-		races = new List<Race>;
-        stages = new List<Stage>;
-        segments = new List<Segment>;
-        riders = new List<Rider>;
-        teams = new List<Team>;
+		races = new List<Race>();
+        stages = new List<Stage>();
+        segments = new List<Segment>();
+        riders = new List<Rider>();
+        teams = new List<Team>();
 	}
 
 	@Override
 	public void saveCyclingPortal(String filename) throws IOException {
 
         String outdir = System.getProperty("user.dir");
-        outdir = outdir.substring(0, outdir.length() - 12) // Subtracts "\src\cycling"
-        outdir += "\res"
+        outdir = outdir.substring(0, outdir.length() - 12); // Subtracts "\src\cycling"
+        outdir += "\res";
 
         for (int i=0; i<this.races.size(); i++)
         {
