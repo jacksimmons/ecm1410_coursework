@@ -15,21 +15,20 @@ import java.util.List;
  *
  */
 public class CyclingPortal implements CyclingPortalInterface {
-
     // Attributes
-  private int[] raceIds;
+    private int[] raceIds;
 	private Map<int, int> raceStages;
 	private List<Rider> riders;
 	private List<Team> teams;
 
     // Constructor
-  public CyclingPortal()
-  {
-      this.raceIds = new int[15];
-	this.riders = new List<Rider>();
-	this.teams = new List<Team>();
-	this.raceStages = new Map<int, int>();
-  }
+    public CyclingPortal()
+    {
+        this.raceIds = new int[15];
+        this.riders = new List<Rider>();
+        this.teams = new List<Team>();
+        this.raceStages = new Map<int, int>();
+    }
 
     // Methods
 	@Override
@@ -40,7 +39,6 @@ public class CyclingPortal implements CyclingPortalInterface {
 
 	@Override
 	public int createRace(String name, String description) throws IllegalNameException, InvalidNameException {
-
 		return 0;
 	}
 
@@ -58,7 +56,6 @@ public class CyclingPortal implements CyclingPortalInterface {
 
 	@Override
 	public int getNumberOfStages(int raceId) throws IDNotRecognisedException {
-		//
 		return this.raceStages[raceId].length;
 	}
 
@@ -254,7 +251,6 @@ public class CyclingPortal implements CyclingPortalInterface {
 	@Override
 	public void deleteRiderResultsInStage(int stageId, int riderId) throws IDNotRecognisedException {
 		// TODO Auto-generated method stub
-
 	}
 
 	@Override

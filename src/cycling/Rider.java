@@ -1,6 +1,6 @@
 package cycling;
 
-public class Rider
+public class Rider implements Serializable
 {
     // Attributes
     private int id;
@@ -21,5 +21,4 @@ public class Rider
     {
         return this.id;
     }
-
 }

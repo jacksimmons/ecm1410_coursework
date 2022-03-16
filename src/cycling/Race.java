@@ -1,15 +1,18 @@
-public class Team implements Serializable
+package cycling;
+
+public class Race implements Serializable
 {
+    // Attributes
     private int id;
     private String name;
     private String description;
-    private static int numberOfTeams;
+    private static int numberOfRaces;
 
-    public Team(String name, String description)
+    public Race(String name, String description)
     {
         this.name = name;
-        this.description = description;
-        this.id = ++numberOfTeams;
+        this.description = description
+        this.id = ++numberOfRaces;
     }
 
     public int getId()
@@ -25,5 +28,10 @@ public class Team implements Serializable
     public String getDescription()
     {
         return this.description;
+    }
+
+    public int getNumberOfRaces()
+    {
+        return numberOfRaces;
     }
 }
