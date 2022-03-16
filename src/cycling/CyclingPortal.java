@@ -26,7 +26,7 @@ public class CyclingPortal implements CyclingPortalInterface {
     {
         this.races = new List<Race>();
         this.stages = new List<Stage>();
-        this.segments = new List<Segments>();
+        this.segments = new List<Segment>();
         this.riders = new List<Rider>();
         this.teams = new List<Team>();
     }
