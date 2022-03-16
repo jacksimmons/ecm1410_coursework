@@ -39,12 +39,12 @@ public class CyclingPortal implements CyclingPortalInterface {
 
         boolean raceIdFound = false;
         Race race = null;
-        for (int i=0; i<this.races.length; i++)
+        for (int i=0; i<this.races.size(); i++)
         {
-            if (this.races[i].getId() == raceId)
+            if (this.races.get(i).getId() == raceId)
             {
                 raceIdFound = true;
-                race = this.races[i];
+                race = this.races.get(i);
             }
         }
 
@@ -58,12 +58,12 @@ public class CyclingPortal implements CyclingPortalInterface {
 
         boolean stageIdFound = false;
         Stage stage = null;
-        for (int i=0; i<this.stages.length; i++)
+        for (int i=0; i<this.stages.size(); i++)
         {
-            if (this.stages[i].getId() == stageId)
+            if (this.stages.get(i).getId() == stageId)
             {
                 stageIdFound = true;
-                stage = this.stages[i];
+                stage = this.stages.get(i);
             }
         }
 
@@ -77,12 +77,12 @@ public class CyclingPortal implements CyclingPortalInterface {
 
         boolean segmentIdFound = false;
         Segment segment = null;
-        for (int i=0; i<this.segments.length; i++)
+        for (int i=0; i<this.segments.size(); i++)
         {
-            if (this.segments[i].getId() == segmentId)
+            if (this.segments.get(i).getId() == segmentId)
             {
                 segmentIdFound = true;
-                segment = this.segments[i];
+                segment = this.segments.get(i);
             }
         }
 
@@ -93,45 +93,50 @@ public class CyclingPortal implements CyclingPortalInterface {
 	@Override
 	public int[] getRaceIds() {
         // Iteratively adds the ID of each race in the races list to raceIds, then returns raceIds.
-        int[] raceIds = new int[races.length];
-		for (i=0; i < this.races.length; i++)
+        int[] raceIds = new int[races.size()];
+		for (i=0; i < this.races.size(); i++)
         {
-            raceIds[i] = this.races[i].getId();
+            raceIds.get(i) = this.races.get(i).getId();
         }
 	}
 
 	@Override
 	public int createRace(String name, String description) throws IllegalNameException, InvalidNameException {
         // Creates a Race object, with necessary checks in place. Returns the Race ID or raises an exception.
-		if (name.length <= 30 && name != null && name != "")
+		if (name.size() <= 30 && name != null && name != "")
 		{
             // The name is of correct size, is not null and is not empty.
-			for (i=0; i < name.length; i++)
+			for (i=0; i < name.size(); i++)
 			{
-				if (isWhitespace(name[i]))
+				if (isWhitespace(name.charAt(i)))
 				{
                     // The name has whitespace; invalid.
 					throw new InvalidNameException("No whitespace allowed in race names.");
-				}
+                    return -1;
+                }
 			}
 
-			for (i=0; i<this.races.length; i++)
+			for (i=0; i<this.races.size(); i++)
 			{
-				if (this.races[i].getName() == name)
+				if (this.races.get(i).getName() == name)
 				{
                     // The name has already been taken.
 					throw new IllegalNameException("This race name is already taken.");
-				}
+                    return -1;
+                }
 			}
 
             // The name is valid; create the Race.
 			Race race = new Race(name, description);
+            this.races.add(race);
+            return race.getId();
 		}
 		else
 		{
             // The name is not of correct size, or is null or empty.
 			throw new InvalidNameException("Race name length is of incorrect length (1 to 30 characters) or is null.")
-		}
+            return -1;
+        }
 	}
 
 	@Override
@@ -165,7 +170,7 @@ public class CyclingPortal implements CyclingPortalInterface {
 
 	@Override
 	public int getNumberOfStages(int raceId) throws IDNotRecognisedException {
-		return this.stages.length;
+		return this.stages.size();
 	}
 
 	@Override
@@ -179,9 +184,9 @@ public class CyclingPortal implements CyclingPortalInterface {
         boolean validName = true;
 
         // Check to see if the race ID is valid
-        for (int i=0; i<this.races.length; i++)
+        for (int i=0; i<this.races.size(); i++)
         {
-            if (raceId == this.races[i].getId())
+            if (raceId == this.races.get(i).getId())
             {
                 validRaceId = true;
             }
@@ -195,9 +200,9 @@ public class CyclingPortal implements CyclingPortalInterface {
         else
         {
             // Check to see if the name isn't valid
-            for (int i=0; i<this.stages.length; i++)
+            for (int i=0; i<this.stages.size(); i++)
             {
-                if (stageName == this.stages[i].getName())
+                if (stageName == this.stages.get(i).getName())
                 {
                     validName = false;
                 }
@@ -215,9 +220,9 @@ public class CyclingPortal implements CyclingPortalInterface {
                     throw new InvalidNameException("Stage name has invalid length (1 to 30 characters) or is null.");
                 }
 
-                for (i=0; i < stageName.length; i++)
+                for (i=0; i < stageName.size(); i++)
                 {
-                    if (isWhitespace(stageName[i]))
+                    if (isWhitespace(stageName.charAt(i)))
                     {
                         // The name has whitespace; invalid.
                         throw new InvalidNameException("No whitespace allowed in stage names.");
@@ -226,6 +231,7 @@ public class CyclingPortal implements CyclingPortalInterface {
 
                 // All checks passed if reaches here.
                 Stage stage = new Stage(raceId, stageName, description, length, startTime, stageType);
+                this.stages.add(stage);
                 return stage.getId();
             }
         }
@@ -242,12 +248,12 @@ public class CyclingPortal implements CyclingPortalInterface {
         }
         else
         {
-            int[] raceStages = new int[this.stages.length] // Upper bound for the length of the array
-            for (int i=0; i<this.stages.length; i++)
+            int[] raceStages = new int[this.stages.size()] // Upper bound for the length of the array
+            for (int i=0; i<this.stages.size(); i++)
             {
-                if (this.stages[i].raceId == raceId)
+                if (this.stages.get(i).raceId == raceId)
                 {
-                    raceStages[i] = this.stages[i].getId();
+                    raceStages[i] = this.stages.get(i).getId();
                 }
             }
             return raceStages;
@@ -302,8 +308,21 @@ public class CyclingPortal implements CyclingPortalInterface {
                 return -1;
             }
 
-            if (stage)
+            if (stage.getStageState() == StageState.WAITING)
+            {
+                throw new InvalidStageStateException("Stage is waiting for results; no segments can be added to it.");
+                return -1;
+            }
+
+            if (stage.getStageType() == StageType.TT)
+            {
+                throw new InvalidStageTypeException("Time-trial segments can't contain any segments.");
+                return -1;
+            }
+
             Segment segment = new Segment(stageId, location, type, averageGradient, length);
+            this.segments.add(segment);
+            return segment.getId();
         }
 	}
 
@@ -311,7 +330,36 @@ public class CyclingPortal implements CyclingPortalInterface {
 	public int addIntermediateSprintToStage(int stageId, double location) throws IDNotRecognisedException,
 			InvalidLocationException, InvalidStageStateException, InvalidStageTypeException {
 		// TODO Auto-generated method stub
-		return 0;
+        Stage stage = this.getStage(stageId);
+        if (stage == null)
+        {
+            throw new IDNotRecognisedException("Stage ID doesn't exist.");
+            return -1;
+        }
+        else
+        {
+            if (location > stage.getLength())
+            {
+                throw new InvalidLocationException("Segment location is out of the provided stage's bounds.");
+                return -1;
+            }
+
+            if (stage.getStageState() == StageState.WAITING)
+            {
+                throw new InvalidStageStateException("Stage is waiting for results; no segments can be added to it.");
+                return -1;
+            }
+
+            if (stage.getStageType() == StageType.TT)
+            {
+                throw new InvalidStageTypeException("Time-trial segments can't contain any segments.");
+                return -1;
+            }
+
+            Segment segment = new Segment(stageId, location, SegmentType.SPRINT, null, null);
+            this.segments.add(segment);
+            return segment.getId();
+        }
 	}
 
 	@Override
@@ -330,8 +378,16 @@ public class CyclingPortal implements CyclingPortalInterface {
 
 	@Override
 	public void concludeStagePreparation(int stageId) throws IDNotRecognisedException, InvalidStageStateException {
-		// TODO Auto-generated method stub
-
+        // ! add more prep stuff? and method descriptor
+        Stage stage = this.getStage(stageId);
+        if (stage == null)
+        {
+            throw new IDNotRecognisedException("Stage ID doesn't exist.");
+        }
+        else
+        {
+            stage.setState(StageState.WAITING);
+        }
 	}
 
 	@Override
@@ -344,12 +400,12 @@ public class CyclingPortal implements CyclingPortalInterface {
         }
         else
         {
-            int[] segments = new int[this.segments.length]; // Upper bound for number of segments
-            for (int i=0; i<this.segments.length; i++)
+            int[] segments = new int[this.segments.size()]; // Upper bound for number of segments
+            for (int i=0; i<this.segments.size(); i++)
             {
-                if (this.segments[i].getStageId() == stageId)
+                if (this.segments.get(i).getStageId() == stageId)
                 {
-                    segments[i] = this.segments[i].getId();
+                    segments.get(i) = this.segments.get(i).getId();
                 }
             }
             return segments;
@@ -360,37 +416,42 @@ public class CyclingPortal implements CyclingPortalInterface {
 	@Override
 	public int createTeam(String name, String description) throws IllegalNameException, InvalidNameException {
         // Creates a Team with the necessary checks. Either returns the Team ID or raises an exception.
-        if (name.length <= 30 && name != null && name != "")
+        if (name.size() <= 30 && name != null && name != "")
 		{
-			for (i=0; i < name.length; i++)
+			for (i=0; i < name.size(); i++)
 			{
-				if (isWhitespace(name[i]))
+				if (isWhitespace(name.charAt(i)))
 				{
 					throw new InvalidNameException("No whitespace allowed in team names.");
-				}
+                    return -1;
+                }
 			}
 
-			for (i=0; i<this.teams.length; i++)
+			for (i=0; i<this.teams.size(); i++)
 			{
-				if (this.teams[i].getName() == name)
+				if (this.teams.get(i).getName() == name)
 				{
 					throw new IllegalNameException("This team name is already taken.");
-				}
+                    return -1;
+                }
 			}
 
 			Team team = new Team(name, description);
+            this.teams.add(team);
+            return team.getId();
 		}
 		else
 		{
             throw new InvalidNameException("Team name length is of incorrect length (1 to 30 characters) or is null.");
-		}
+            return -1;
+        }
 	}
 
 	@Override
 	public void removeTeam(int teamId) throws IDNotRecognisedException {
-		for (i=0; i<this.teams.length; i++)
+		for (i=0; i<this.teams.size(); i++)
 		{
-			if (this.teams[i].getId() == teamId)
+			if (this.teams.get(i).getId() == teamId)
 			{
 				this.teams.remove(i);
 				return;
@@ -402,10 +463,10 @@ public class CyclingPortal implements CyclingPortalInterface {
 	@Override
 	public int[] getTeams() {
 		// ! annoying return type
-		int[] teamIds = new int[this.teams.length];
-		for (i=0; i<this.teams.length; i++)
+		int[] teamIds = new int[this.teams.size()];
+		for (i=0; i<this.teams.size(); i++)
 		{
-			teamIds.add(this.teams[i]);
+			teamIds.add(this.teams.get(i));
 		}
 		return teamIds;
 	}
@@ -413,7 +474,7 @@ public class CyclingPortal implements CyclingPortalInterface {
 	@Override
 	public int[] getTeamRiders(int teamId) throws IDNotRecognisedException {
         // Return the riders of a team, or an empty array if the ID is invalid.
-		int[] teamRiders = new int[this.riders.length]; // Upper bound for number of riders
+		int[] teamRiders = new int[this.riders.size()]; // Upper bound for number of riders
         Team team = this.getTeam(teamId);
         if (team == null)
         {
@@ -421,11 +482,11 @@ public class CyclingPortal implements CyclingPortalInterface {
         }
         else
         {
-            for (i=0; i<this.riders.length; i++)
+            for (i=0; i<this.riders.size(); i++)
             {
-                if (this.riders[i].getTeamId() == teamId)
+                if (this.riders.get(i).getTeamId() == teamId)
                 {
-                    teamRiders[i] = this.riders[i];
+                    teamRiders[i] = this.riders.get(i);
                 }
             }
             return teamRiders;
@@ -441,9 +502,9 @@ public class CyclingPortal implements CyclingPortalInterface {
 		{
 			if (name != null)
 			{
-				for (i=0; i<this.teams.length; i++)
+				for (i=0; i<this.teams.size(); i++)
 				{
-					if (this.teams[i].getName() == name)
+					if (this.teams.get(i).getName() == name)
 					{
 						throw new IllegalNameException("This name is already taken.");
 						// code end
@@ -469,9 +530,9 @@ public class CyclingPortal implements CyclingPortalInterface {
 	@Override
 	public void removeRider(int riderId) throws IDNotRecognisedException {
         // Iteratively searches for the first (and only) Rider with the given ID, and removes it.
-        for (int i=0; i < this.riders.length; i++)
+        for (int i=0; i < this.riders.size(); i++)
         {
-            if (this.riders[i].getId() == riderId)
+            if (this.riders.get(i).getId() == riderId)
             {
                 this.riders.remove(i);
             }
@@ -529,14 +590,27 @@ public class CyclingPortal implements CyclingPortalInterface {
 
 	@Override
 	public void eraseCyclingPortal() {
-		// TODO Auto-generated method stub
-
+        // ! Objects stored in these lists will be deleted when they are reset by the garbage collector.
+		races = new List<Race>;
+        stages = new List<Stage>;
+        segments = new List<Segment>;
+        riders = new List<Rider>;
+        teams = new List<Team>;
 	}
 
 	@Override
 	public void saveCyclingPortal(String filename) throws IOException {
-		// TODO Auto-generated method stub
 
+        String outdir = System.getProperty("user.dir");
+        outdir = outdir.substring(0, outdir.length() - 12) // Subtracts "\src\cycling"
+        outdir += "\res"
+
+        for (int i=0; i<this.races.size(); i++)
+        {
+            FileOutputStream fos = new FileOutputStream(cwd + "race.ser");
+            ObjectOutputStream oos = new ObjectOutputStream(fos);
+            oos.writeObject(this.races.get(i));
+        }
 	}
 
 	@Override
@@ -548,9 +622,9 @@ public class CyclingPortal implements CyclingPortalInterface {
 	@Override
 	public void removeRaceByName(String name) throws NameNotRecognisedException {
         // Iteratively searches for the first (and only) Race with the given name, and removes it.
-        for (int i=0; i < races.length; i++)
+        for (int i=0; i < races.size(); i++)
         {
-            if (this.races[i].getName() == name)
+            if (this.races.get(i).getName() == name)
             {
                 this.races.remove(i);
             }

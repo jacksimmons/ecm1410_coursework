@@ -21,8 +21,8 @@ public class Stage implements Serializable
         this.description = description;
         this.length = length;
         this.startTime = startTime;
-        this.stageType = type;
-        this.stageState = state;
+        this.type = type;
+        this.state = state;
         this.id = ++numberOfStages;
     }
 
@@ -86,24 +86,24 @@ public class Stage implements Serializable
         this.startTime = startTime;
     }
 
-    public StageType getStageType()
+    public StageType getType()
     {
-        return this.stageType;
+        return this.type;
     }
 
-    public void setStageType(StageType stageType)
+    public void setType(StageType type)
     {
-        this.stageType = stageType;
+        this.type = type;
     }
 
-    public StageState getStageState()
+    public StageState getState()
     {
-        return this.stageState;
+        return this.state;
     }
 
-    public void setStageState(StageState stageState)
+    public void setState(StageState state)
     {
-        this.stageState = stageState;
+        this.state = state;
     }
 
     public static int getNumberOfStages()

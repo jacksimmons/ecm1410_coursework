@@ -54,6 +54,7 @@ public class Segment implements Serializable
 
     public double getAverageGradient()
     {
+        // Note that this method can return null, as addIntermediateSprintToStage doesn't provide an averageGradient.
         return this.averageGradient;
     }
 
@@ -64,6 +65,7 @@ public class Segment implements Serializable
 
     public double getLength()
     {
+        // Note that this method can return null, as addIntermediateSprintToStage doesn't provide a length.
         return this.length;
     }
 
