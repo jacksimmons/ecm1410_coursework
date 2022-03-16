@@ -3,12 +3,13 @@ public class Team
     private int id;
     private String name;
     private String description;
+    private static int numberOfTeams;
 
-    public Team(int id, String name, String description)
+    public Team(String name, String description)
     {
-        this.id = id;
         this.name = name;
         this.description = description;
+        this.id = ++numberOfTeams;
     }
 
     public int getId()

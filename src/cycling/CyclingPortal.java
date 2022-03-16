@@ -9,27 +9,27 @@ import java.util.List;
 /**
  * BadCyclingPortal is a minimally compiling, but non-functioning implementor
  * of the CyclingPortalInterface interface.
- * 
+ *
  * @author Diogo Pacheco
  * @version 1.0
  *
  */
 public class CyclingPortal implements CyclingPortalInterface {
-    
+
     // Attributes
-    private int[] raceIds;
+  private int[] raceIds;
 	private Map<int, int> raceStages;
 	private List<Rider> riders;
 	private List<Team> teams;
 
     // Constructor
-    public CyclingPortal()
-    {
-        this.raceIds = new int[15];
-		this.riders = new List<Rider>();
-		this.teams = new List<Team>();
-		this.raceStages = new Map<int, int>();
-    }
+  public CyclingPortal()
+  {
+      this.raceIds = new int[15];
+	this.riders = new List<Rider>();
+	this.teams = new List<Team>();
+	this.raceStages = new Map<int, int>();
+  }
 
     // Methods
 	@Override
@@ -40,7 +40,7 @@ public class CyclingPortal implements CyclingPortalInterface {
 
 	@Override
 	public int createRace(String name, String description) throws IllegalNameException, InvalidNameException {
-		
+
 		return 0;
 	}
 
@@ -143,18 +143,7 @@ public class CyclingPortal implements CyclingPortalInterface {
 				}
 			}
 
-			// Set ID to one more than the last created team's ID, or 0 if there isn't one.
-			int id;
-			if (this.teams.length > 0)
-			{
-				id = this.teams[this.teams.length - 1].getId() + 1;
-			}
-			else
-			{
-				id = 0;
-			}
-			Team team = new Team(id, name, description);
-			return team.getId();
+			Team team = new Team(name, description);
 		}
 		else
 		{
@@ -191,7 +180,7 @@ public class CyclingPortal implements CyclingPortalInterface {
 
 	@Override
 	public int[] getTeamRiders(int teamId) throws IDNotRecognisedException {
-		int[] teamRiders = new int[this.riders.length]; // Set the length 
+		int[] teamRiders = new int[this.riders.length]; // Set the length
 		for (i=0; i<this.riders.length; i++)
 		{
 			if (this.riders[i].getTeamId() == teamId)
@@ -221,21 +210,9 @@ public class CyclingPortal implements CyclingPortalInterface {
 					}
 				}
 
-
-
-				// Set ID to one more than the last created rider's ID, or 0 if there isn't one.
-				int id;
-				if (this.riders.length > 0)
-				{
-					id = this.riders[this.riders.length - 1].getId() + 1;
-				}
-				else
-				{
-					id = 0;
-				}
-				Rider rider = new Rider(id, teamID, name, yearOfBirth);
+				Rider rider = new Rider(teamID, name, yearOfBirth);
 				this.riders.add(rider);
-				return id;
+				return rider.getId();
 			}
 			else
 			{

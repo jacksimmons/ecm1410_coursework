@@ -7,13 +7,14 @@ public class Rider
     private int teamID;
     private String name;
     private int yearOfBirth;
+    private static int numberOfRiders;
 
-    public Rider(int id, int teamID, String name, int yearOfBirth)
+    public Rider(int teamID, String name, int yearOfBirth)
     {
-        this.id = id;
         this.teamID = teamID;
         this.name = name;
         this.yearOfBirth = yearOfBirth;
+        this.id = ++numberOfRiders;
     }
 
     public int getId()
