@@ -16,15 +16,15 @@ import java.util.List;
  */
 public class CyclingPortal implements CyclingPortalInterface {
     // Attributes
-    private int[] raceIds;
-	private Map<int, int> raceStages;
+    private List<Race> races;
+	// private Map<int, int> raceStages;
 	private List<Rider> riders;
 	private List<Team> teams;
 
     // Constructor
     public CyclingPortal()
     {
-        this.raceIds = new int[15];
+        this.races = new List<Race>();
         this.riders = new List<Rider>();
         this.teams = new List<Team>();
         this.raceStages = new Map<int, int>();
@@ -33,13 +33,47 @@ public class CyclingPortal implements CyclingPortalInterface {
     // Methods
 	@Override
 	public int[] getRaceIds() {
-		//
-		return this.raceIds;
+        // Iteratively adds the ID of each race in the races list to raceIds, then returns raceIds.
+        int[] raceIds = new int[races.length];
+		for (i=0; i < this.races.length; i++)
+        {
+            raceIds[i] = this.races[i].getId();
+        }
 	}
 
 	@Override
 	public int createRace(String name, String description) throws IllegalNameException, InvalidNameException {
-		return 0;
+        // Creates a Race object, with necessary checks in place.
+		if (name.length <= 30 && name != null && name != "")
+		{
+            // The name is of correct size, is not null and is not empty.
+			for (i=0; i < name.length; i++)
+			{
+				if (isWhitespace(name[i]))
+				{
+                    // The name has whitespace; invalid.
+					throw new InvalidNameException("No whitespace allowed in race names.");
+				}
+			}
+
+			for (i=0; i<this.races.length; i++)
+			{
+				if (this.races[i].getName() == name)
+				{
+                    // The name has already been taken.
+					throw new IllegalNameException("This race name is already taken.");
+				}
+			}
+
+            // The name is valid; create the Race.
+			Race race = new Race(name, description);
+		}
+		else
+		{
+            // The name is not of correct size, or is null or empty.
+			throw new InvalidNameException("Race name length is of incorrect length (1 to 30 characters) or is null.")
+		}
+		return -1; // !
 	}
 
 	@Override
@@ -50,8 +84,14 @@ public class CyclingPortal implements CyclingPortalInterface {
 
 	@Override
 	public void removeRaceById(int raceId) throws IDNotRecognisedException {
-		// TODO Auto-generated method stub
-
+        // Iteratively searches for the first (and only) Race with the given ID, and removes it.
+        for (int i=0; i < races.length; i++)
+        {
+            if (races[i].getId() == raceId)
+            {
+                races.remove(i);
+            }
+        }
 	}
 
 	@Override
@@ -119,15 +159,13 @@ public class CyclingPortal implements CyclingPortalInterface {
 
 	@Override
 	public int createTeam(String name, String description) throws IllegalNameException, InvalidNameException {
-		//
 		if (name.length <= 30 && name != null && name != "")
 		{
 			for (i=0; i < name.length; i++)
 			{
 				if (isWhitespace(name[i]))
 				{
-					throw new InvalidNameException("No whitespace allowed.");
-					// code end
+					throw new InvalidNameException("No whitespace allowed in team names.");
 				}
 			}
 
@@ -135,8 +173,7 @@ public class CyclingPortal implements CyclingPortalInterface {
 			{
 				if (this.teams[i].getName() == name)
 				{
-					throw new IllegalNameException("This name is already taken.");
-					// code end
+					throw new IllegalNameException("This team name is already taken.");
 				}
 			}
 
@@ -144,8 +181,7 @@ public class CyclingPortal implements CyclingPortalInterface {
 		}
 		else
 		{
-			throw new InvalidNameException("Incorrect name length (1 to 30 characters).")
-			// code end
+            throw new InvalidNameException("Team name length is of incorrect length (1 to 30 characters) or is null.");
 		}
 		return -1; // !
 	}
@@ -224,8 +260,14 @@ public class CyclingPortal implements CyclingPortalInterface {
 
 	@Override
 	public void removeRider(int riderId) throws IDNotRecognisedException {
-		// TODO Auto-generated method stub
-		riders.remove(riderId);
+        // Iteratively searches for the first (and only) Rider with the given ID, and removes it.
+        for (int i=0; i < riders.length; i++)
+        {
+            if (riders[i].getId() == riderId)
+            {
+                riders.remove(i);
+            }
+        }
 	}
 
 	@Override

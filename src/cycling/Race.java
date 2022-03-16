@@ -11,7 +11,7 @@ public class Race implements Serializable
     public Race(String name, String description)
     {
         this.name = name;
-        this.description = description
+        this.description = description;
         this.id = ++numberOfRaces;
     }
 

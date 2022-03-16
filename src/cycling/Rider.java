@@ -4,14 +4,16 @@ public class Rider implements Serializable
 {
     // Attributes
     private int id;
-    private int teamID;
+    private int teamId;
+    private int raceId;
     private String name;
     private int yearOfBirth;
     private static int numberOfRiders;
 
-    public Rider(int teamID, String name, int yearOfBirth)
+    public Rider(int teamId, int raceId, String name, int yearOfBirth)
     {
-        this.teamID = teamID;
+        this.teamId = teamId;
+        this.raceId = raceId;
         this.name = name;
         this.yearOfBirth = yearOfBirth;
         this.id = ++numberOfRiders;
@@ -20,6 +22,16 @@ public class Rider implements Serializable
     public int getId()
     {
         return this.id;
+    }
+
+    public int getTeamId()
+    {
+        return this.teamId;
+    }
+
+    public int getRaceId()
+    {
+        return this.raceId;
     }
 
     public String getName()
