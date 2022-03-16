@@ -5,7 +5,6 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 
-
 /**
  * BadCyclingPortal is a minimally compiling, but non-functioning implementor
  * of the CyclingPortalInterface interface.
@@ -17,7 +16,7 @@ import java.util.List;
 public class CyclingPortal implements CyclingPortalInterface {
     // Attributes
     private List<Race> races;
-	// private Map<int, int> raceStages;
+	private List<Stage> stages;
 	private List<Rider> riders;
 	private List<Team> teams;
 
@@ -25,9 +24,29 @@ public class CyclingPortal implements CyclingPortalInterface {
     public CyclingPortal()
     {
         this.races = new List<Race>();
+        this.stages = new List<Stage>();
         this.riders = new List<Rider>();
         this.teams = new List<Team>();
-        this.raceStages = new Map<int, int>();
+    }
+
+    // Added Methods
+    public Stage getStage(int stageId)
+    {
+        // Finds the corresponding stage and returns it if it exists.
+        // If it doesn't exist, null is returned.
+
+        boolean stageIdFound = false;
+        Stage stage = null;
+        for (int i=0; i<this.stages.length; i++)
+        {
+            if (this.stages[i].getId() == stageId)
+            {
+                stageIdFound = true;
+                stage = this.stages[i];
+            }
+        }
+
+        return stage;
     }
 
     // Methods
@@ -43,7 +62,7 @@ public class CyclingPortal implements CyclingPortalInterface {
 
 	@Override
 	public int createRace(String name, String description) throws IllegalNameException, InvalidNameException {
-        // Creates a Race object, with necessary checks in place.
+        // Creates a Race object, with necessary checks in place. Returns the Race ID or raises an exception.
 		if (name.length <= 30 && name != null && name != "")
 		{
             // The name is of correct size, is not null and is not empty.
@@ -73,7 +92,6 @@ public class CyclingPortal implements CyclingPortalInterface {
             // The name is not of correct size, or is null or empty.
 			throw new InvalidNameException("Race name length is of incorrect length (1 to 30 characters) or is null.")
 		}
-		return -1; // !
 	}
 
 	@Override
@@ -103,19 +121,89 @@ public class CyclingPortal implements CyclingPortalInterface {
 	public int addStageToRace(int raceId, String stageName, String description, double length, LocalDateTime startTime,
 			StageType type)
 			throws IDNotRecognisedException, IllegalNameException, InvalidNameException, InvalidLengthException {
-		// TODO Auto-generated method stub
-		return 0;
+
+        // Adds a stage to the given race, and either returns the ID of the stage or raises an exception.
+
+        boolean validRaceId = false;
+        boolean validName = true;
+
+        // Check to see if the race ID is valid
+        for (int i=0; i<this.races.length; i++)
+        {
+            if (raceId == this.races[i].getId())
+            {
+                validRaceId = true;
+            }
+        }
+
+        if (!validRaceId)
+        {
+            throw new IDNotRecognisedException("ID does not match any race in the system.");
+        }
+
+        else
+        {
+            // Check to see if the name isn't valid
+            for (int i=0; i<this.stages.length; i++)
+            {
+                if (stageName == this.stages[i].getName())
+                {
+                    validName = false;
+                }
+            }
+
+            if (!validName)
+            {
+                throw new IllegalNameException("Stage name already exists.");
+            }
+
+            else
+            {
+                if (stageName == null || stageName == "" || stageName.getLength() > 30)
+                {
+                    throw new InvalidNameException("Stage name has invalid length (1 to 30 characters) or is null.");
+                }
+
+                for (i=0; i < stageName.length; i++)
+                {
+                    if (isWhitespace(stageName[i]))
+                    {
+                        // The name has whitespace; invalid.
+                        throw new InvalidNameException("No whitespace allowed in stage names.");
+                    }
+                }
+
+                // All checks passed if reaches here.
+                Stage stage = new Stage(raceId, stageName, description, length, startTime, stageType);
+                return stage.getId();
+            }
+        }
 	}
 
 	@Override
 	public int[] getRaceStages(int raceId) throws IDNotRecognisedException {
-		return this.raceStages[raceId];
+        // Iteratively checks for all stages belonging to a certain race and returns an array containing their IDs.
+        int[] raceStages = new int[this.stages.length] // Upper bound for the length of the array
+        for (int i=0; i<this.stages.length; i++)
+        {
+            if (this.stages[i].raceId == raceId)
+            {
+                raceStages[i] = this.stages[i].getId();
+            }
+        }
 	}
 
 	@Override
 	public double getStageLength(int stageId) throws IDNotRecognisedException {
-		// TODO Auto-generated method stub
-		return 0;
+        Stage stage = getStage(stageId);
+        if (stage == null)
+        {
+            throw new IDNotRecognisedException("This stage ID doesn't exist.")
+        }
+        else
+        {
+            return stage.getLength();
+        }
 	}
 
 	@Override
@@ -153,13 +241,21 @@ public class CyclingPortal implements CyclingPortalInterface {
 
 	@Override
 	public int[] getStageSegments(int stageId) throws IDNotRecognisedException {
-		// TODO Auto-generated method stub
-		return null;
+		Stage stage = getStage(stageId);
+        if (stage == null)
+        {
+            throw new IDNotRecognisedException("This stage ID doesn't exist.")
+        }
+        else
+        {
+            return stage.getSegments();
+        }
 	}
 
 	@Override
 	public int createTeam(String name, String description) throws IllegalNameException, InvalidNameException {
-		if (name.length <= 30 && name != null && name != "")
+        // Creates a Team with the necessary checks. Either returns the Team ID or raises an exception.
+        if (name.length <= 30 && name != null && name != "")
 		{
 			for (i=0; i < name.length; i++)
 			{
@@ -183,7 +279,6 @@ public class CyclingPortal implements CyclingPortalInterface {
 		{
             throw new InvalidNameException("Team name length is of incorrect length (1 to 30 characters) or is null.");
 		}
-		return -1; // !
 	}
 
 	@Override
@@ -229,7 +324,7 @@ public class CyclingPortal implements CyclingPortalInterface {
 	@Override
 	public int createRider(int teamID, String name, int yearOfBirth)
 			throws IDNotRecognisedException, IllegalArgumentException {
-		//
+		// Creates a rider and returns its ID if successful. If not, throws an error and returns -1.
 		if (yearOfBirth >= 1900)
 		{
 			if (name != null)
@@ -256,6 +351,7 @@ public class CyclingPortal implements CyclingPortalInterface {
 		{
 			throw new IllegalArgumentException("Year of birth must be at least 1900.")
 		}
+        return -1;
 	}
 
 	@Override
