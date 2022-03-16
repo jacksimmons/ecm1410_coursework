@@ -17,6 +17,7 @@ public class CyclingPortal implements CyclingPortalInterface {
     // Attributes
     private List<Race> races;
 	private List<Stage> stages;
+    private List<Segment> segments;
 	private List<Rider> riders;
 	private List<Team> teams;
 
@@ -25,11 +26,31 @@ public class CyclingPortal implements CyclingPortalInterface {
     {
         this.races = new List<Race>();
         this.stages = new List<Stage>();
+        this.segments = new List<Segments>();
         this.riders = new List<Rider>();
         this.teams = new List<Team>();
     }
 
     // Added Methods
+    public Race getRace(int raceId)
+    {
+        // Finds the corresponding race and returns it if it exists.
+        // If it doesn't exist, null is returned.
+
+        boolean raceIdFound = false;
+        Race race = null;
+        for (int i=0; i<this.races.length; i++)
+        {
+            if (this.races[i].getId() == raceId)
+            {
+                raceIdFound = true;
+                race = this.races[i];
+            }
+        }
+
+        return race;
+    }
+
     public Stage getStage(int stageId)
     {
         // Finds the corresponding stage and returns it if it exists.
@@ -47,6 +68,25 @@ public class CyclingPortal implements CyclingPortalInterface {
         }
 
         return stage;
+    }
+
+    public Segment getSegment(int segmentId)
+    {
+        // Finds the corresponding segment and returns it if it exists.
+        // If it doesn't exist, null is returned.
+
+        boolean segmentIdFound = false;
+        Segment segment = null;
+        for (int i=0; i<this.segments.length; i++)
+        {
+            if (this.segments[i].getId() == segmentId)
+            {
+                segmentIdFound = true;
+                segment = this.segments[i];
+            }
+        }
+
+        return segment;
     }
 
     // Methods
@@ -96,8 +136,17 @@ public class CyclingPortal implements CyclingPortalInterface {
 
 	@Override
 	public String viewRaceDetails(int raceId) throws IDNotRecognisedException {
-		// TODO Auto-generated method stub
-		return null;
+		Race race = getRace(raceId);
+        if (race == null)
+        {
+            throw new IDNotRecognisedException("Race ID doesn't exist.");
+            return null;
+        }
+        else
+        {
+            return String.format("Race ID: %i\nName: %s\nDescription: %s\nNumber of Stages: %i\nLength: %d",
+            raceId, race.getName(), race.getDescription(), race.getNumberOfStages(), race.getLength());
+        }
 	}
 
 	@Override
@@ -114,7 +163,7 @@ public class CyclingPortal implements CyclingPortalInterface {
 
 	@Override
 	public int getNumberOfStages(int raceId) throws IDNotRecognisedException {
-		return this.raceStages[raceId].length;
+		return this.stages.length;
 	}
 
 	@Override
@@ -191,10 +240,12 @@ public class CyclingPortal implements CyclingPortalInterface {
                 raceStages[i] = this.stages[i].getId();
             }
         }
+
 	}
 
 	@Override
 	public double getStageLength(int stageId) throws IDNotRecognisedException {
+        // Returns the length of a stage, or 0 if the stage ID provided doesn't exist.
         Stage stage = getStage(stageId);
         if (stage == null)
         {
@@ -204,12 +255,20 @@ public class CyclingPortal implements CyclingPortalInterface {
         {
             return stage.getLength();
         }
+        return 0.0;
 	}
 
 	@Override
 	public void removeStageById(int stageId) throws IDNotRecognisedException {
-		// TODO Auto-generated method stub
-
+		Stage stage = getStage(stageId);
+        if (stage == null)
+        {
+            throw new IDNotRecognisedException("Stage ID doesn't exist.");
+        }
+        else
+        {
+            this.stages.remove(stage);
+        }
 	}
 
 	@Override
@@ -229,8 +288,16 @@ public class CyclingPortal implements CyclingPortalInterface {
 
 	@Override
 	public void removeSegment(int segmentId) throws IDNotRecognisedException, InvalidStageStateException {
-		// TODO Auto-generated method stub
-
+        // Finds a segment by ID, then removes it from the segments attribute.
+        Segment segment = getSegment(segmentId);
+        if (segment == null)
+        {
+            throw new IDNotRecognisedException("Segment ID doesn't exist.");
+        }
+        else
+        {
+            this.segments.remove(segment); // !
+        }
 	}
 
 	@Override
@@ -241,15 +308,25 @@ public class CyclingPortal implements CyclingPortalInterface {
 
 	@Override
 	public int[] getStageSegments(int stageId) throws IDNotRecognisedException {
-		Stage stage = getStage(stageId);
+        // Returns a list of segments ID of a stage, or an empty array.
+        Stage stage = getStage(stageId);
         if (stage == null)
         {
             throw new IDNotRecognisedException("This stage ID doesn't exist.")
         }
         else
         {
-            return stage.getSegments();
+            int[] segments = new int[this.segments.length]; // Upper bound for number of segments
+            for (int i=0; i<this.segments.length; i++)
+            {
+                if (this.segments[i].getStageId() == stageId)
+                {
+                    segments[i] = this.segments[i].getId();
+                }
+            }
+            return segments;
         }
+        return new int[0];
 	}
 
 	@Override

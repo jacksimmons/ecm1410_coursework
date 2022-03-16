@@ -20,7 +20,6 @@ public class Stage implements Serializable
         this.length = length;
         this.startTime = startTime;
         this.stageType = stageType;
-        this.segments = segments;
         this.id = ++numberOfStages;
     }
 
