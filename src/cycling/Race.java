@@ -1,5 +1,7 @@
 package cycling;
 
+import java.io.Serializable;
+
 public class Race implements Serializable
 {
     // Attributes

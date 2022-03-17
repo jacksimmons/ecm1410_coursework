@@ -1,4 +1,4 @@
-import cycling.BadCyclingPortal;
+import cycling.CyclingPortal;
 import cycling.BadMiniCyclingPortal;
 import cycling.CyclingPortalInterface;
 import cycling.MiniCyclingPortalInterface;
@@ -9,7 +9,7 @@ import cycling.MiniCyclingPortalInterface;
  * will want to increase these checks, and run it on your CyclingPortal class
  * (not the BadCyclingPortal class).
  *
- * 
+ *
  * @author Diogo Pacheco
  * @version 1.0
  */
@@ -17,13 +17,13 @@ public class CyclingPortalInterfaceTestApp {
 
 	/**
 	 * Test method.
-	 * 
+	 *
 	 * @param args not used
 	 */
 	public static void main(String[] args) {
 		System.out.println("The system compiled and started the execution...");
 
-		MiniCyclingPortalInterface portal = new BadMiniCyclingPortal();
+		MiniCyclingPortalInterface portal = new CyclingPortal();
 //		CyclingPortalInterface portal = new BadCyclingPortal();
 
 		assert (portal.getRaceIds().length == 0)

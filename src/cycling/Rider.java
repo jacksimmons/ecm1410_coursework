@@ -1,5 +1,7 @@
 package cycling;
 
+import java.io.Serializable;
+
 public class Rider implements Serializable
 {
     // Attributes
@@ -61,7 +63,7 @@ public class Rider implements Serializable
 
     public int getYearOfBirth()
     {
-        return this.yearOfBirth
+        return this.yearOfBirth;
     }
 
     public void setYearOfBirth(int yearOfBirth)

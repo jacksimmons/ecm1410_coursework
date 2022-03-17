@@ -1,5 +1,7 @@
 package cycling;
 
+import java.io.Serializable;
+
 public class Segment implements Serializable
 {
     // Attributes
@@ -76,6 +78,6 @@ public class Segment implements Serializable
 
     public static int getNumberOfSegments()
     {
-        return this.numberOfSegments;
+        return numberOfSegments;
     }
 }
