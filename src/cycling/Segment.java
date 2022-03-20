@@ -34,6 +34,16 @@ public class Segment implements Serializable
         this.id = id;
     }
 
+    public int getStageId()
+    {
+        return this.stageId;
+    }
+
+    public void setStageId(int stageId)
+    {
+        this.stageId = id;
+    }
+
     public double getLocation()
     {
         return this.location;

@@ -5,7 +5,12 @@ public class Coursework
     public static void main(String[] args)
     {
         CyclingPortal cyclingPortal = new CyclingPortal();
-        cyclingPortal.createTeam();
-        System.out.println(cyclingPortal.getTeams().type);
+        try {
+            cyclingPortal.createTeam("Cyclists", "The Best Cyclists");
+        } catch (IllegalNameException e) {
+            e.printStackTrace();
+        } catch (InvalidNameException e) {
+            e.printStackTrace();
+        }
     }
 }
