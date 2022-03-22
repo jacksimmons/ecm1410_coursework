@@ -218,6 +218,8 @@ public class CyclingPortal implements CyclingPortalInterface {
 	@Override
 	public void removeRaceById(int raceId) throws IDNotRecognisedException {
         // Removes a race by ID or raises an exception.
+        // ! stages, cascades to segments
+
         Race race = this.getRace(raceId);
 
         // Need to deal with the fact that getRace returns null if no match is found.
@@ -364,6 +366,7 @@ public class CyclingPortal implements CyclingPortalInterface {
 	public void removeStageById(int stageId) throws IDNotRecognisedException {
 		Stage stage = this.getStage(stageId);
 
+        // ! segments
         // Need to deal with the fact that stage can be null if it wasn't found in getStage.
         if (stage == null)
         {
@@ -446,6 +449,8 @@ public class CyclingPortal implements CyclingPortalInterface {
 	@Override
 	public void removeSegment(int segmentId) throws IDNotRecognisedException, InvalidStageStateException {
         // Finds a segment by ID, then removes it from the segments attribute.
+        // ! stages
+
         Segment segment = this.getSegment(segmentId);
         if (segment == null)
         {
@@ -529,7 +534,9 @@ public class CyclingPortal implements CyclingPortalInterface {
 
 	@Override
 	public void removeTeam(int teamId) throws IDNotRecognisedException {
-		for (int i=0; i<this.teams.size(); i++)
+        // ! riders
+
+        for (int i=0; i<this.teams.size(); i++)
 		{
 			if (this.teams.get(i).getId() == teamId)
 			{
@@ -965,6 +972,7 @@ public class CyclingPortal implements CyclingPortalInterface {
 	@Override
 	public void removeRaceByName(String name) throws NameNotRecognisedException {
         // Iteratively searches for the first (and only) Race with the given name, and removes it.
+        // !
         for (int i=0; i < this.races.size(); i++)
         {
             if (this.races.get(i).getName() == name)
