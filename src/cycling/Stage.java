@@ -1,7 +1,11 @@
 package cycling;
 
+import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 public class Stage implements Serializable
 {
@@ -14,6 +18,8 @@ public class Stage implements Serializable
     private LocalDateTime startTime;
     private StageType type;
     private StageState state;
+    private ArrayList<Integer> orderedSegments;
+    private HashMap<Integer, ArrayList<LocalTime>> riderResults;
     private static int numberOfStages; // Starts 0
 
     public Stage(int raceId, String name, String description, double length,
@@ -26,6 +32,8 @@ public class Stage implements Serializable
         this.startTime = startTime;
         this.type = type;
         this.state = state;
+        this.orderedSegments = new ArrayList<Integer>();
+        this.riderResults = new HashMap<Integer, ArrayList<LocalTime>>();
         this.id = ++numberOfStages;
     }
 
@@ -107,6 +115,36 @@ public class Stage implements Serializable
     public void setState(StageState state)
     {
         this.state = state;
+    }
+
+    public ArrayList<Integer> getSegments()
+    {
+        return this.orderedSegments;
+    }
+
+    public void addSegment(int segmentId)
+    {
+        this.orderedSegments.add(segmentId);
+    }
+
+    public void setSegments(ArrayList<Integer> segmentIds)
+    {
+        this.orderedSegments = segmentIds;
+    }
+
+    public HashMap<Integer, ArrayList<LocalTime>> getRiderResults()
+    {
+        return this.riderResults;
+    }
+
+    public void addRiderResult(int riderId, LocalTime... checkpoints)
+    {
+        this.riderResults.put(riderId, new ArrayList<LocalTime>(Arrays.asList(checkpoints)));
+    }
+
+    public void setRiderResults(HashMap<Integer, ArrayList<LocalTime>> riderResults)
+    {
+        this.riderResults = riderResults;
     }
 
     public static int getNumberOfStages()

@@ -1,6 +1,6 @@
 package cycling;
 
 public enum StageState {
-    PREPARING, // Hasn't started
+    PREPARING, // Not finished (includes not started)
     WAITING, // Has finished; waiitng for results
 }
