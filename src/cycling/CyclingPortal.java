@@ -13,6 +13,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
+import java.lang.ArrayIndexOutOfBoundsException;
+
 /**
  * BadCyclingPortal is a minimally compiling, but non-functioning implementor
  * of the CyclingPortalInterface interface.
@@ -29,6 +31,35 @@ public class CyclingPortal implements CyclingPortalInterface {
 	private ArrayList<Rider> riders;
 	private ArrayList<Team> teams;
     private String outdir;
+
+    private static final HashMap<StageType, int[]> stagePointsMap = new HashMap<StageType, int[]>();
+
+    // ! Remember to handle indexes out of range - these are 0s
+    private static final HashMap<SegmentType, int[]> segmentPointsMap = new HashMap<SegmentType, int[]>();
+
+    static {
+        stagePointsMap.put(StageType.FLAT,
+        new int[]{50, 30, 20, 18, 16, 14, 12, 10, 8, 7, 6, 5, 4, 3, 2});
+        stagePointsMap.put(StageType.MEDIUM_MOUNTAIN,
+        new int[]{30, 25, 22, 19, 17, 15, 13, 11, 9, 7, 6, 5, 4, 3, 2});
+        stagePointsMap.put(StageType.HIGH_MOUNTAIN,
+        new int[]{20, 17, 15, 13, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1});
+        stagePointsMap.put(StageType.TT,
+        new int[]{20, 17, 15, 13, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1});
+
+        segmentPointsMap.put(SegmentType.SPRINT,
+        new int[]{20, 17, 15, 13, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1});
+        segmentPointsMap.put(SegmentType.C4,
+        new int[]{1});
+        segmentPointsMap.put(SegmentType.C3,
+        new int[]{2, 1});
+        segmentPointsMap.put(SegmentType.C2,
+        new int[]{5, 3, 2, 1});
+        segmentPointsMap.put(SegmentType.C1,
+        new int[]{10, 8, 6, 4, 2, 1});
+        segmentPointsMap.put(SegmentType.HC,
+        new int[]{20, 15, 12, 10, 8, 6, 4, 2});
+    }
 
     // Constructor
     public CyclingPortal()
@@ -137,6 +168,175 @@ public class CyclingPortal implements CyclingPortalInterface {
         return rider;
     }
 
+    public HashMap<Integer, LocalTime> getRiderToTotalRaceTimeMap(int raceId) throws IDNotRecognisedException
+    {
+        HashMap<Integer, LocalTime> riderToTime = new HashMap<>();
+
+        for (Stage stage : this.stages)
+        {
+            if (stage.getRaceId() == raceId)
+            {
+                HashMap<Integer, ArrayList<LocalTime>> riderResults = stage.getRiderResults();
+                for (int riderId : riderResults.keySet())
+                {
+                    Rider rider = this.getRider(riderId);
+                    if (rider != null)
+                    {
+                        LocalTime stageTime = this.getRiderAdjustedElapsedTimeInStage(stage.getId(), riderId);
+                        LocalTime prevTime = riderToTime.get(riderId);
+                        if (prevTime == null)
+                        {
+                            riderToTime.put(riderId, stageTime);
+                        }
+                        else
+                        {
+                            riderToTime.put(riderId, prevTime.plusHours(stageTime.getHour()).plusMinutes(stageTime.getMinute()));
+                        }
+                    }
+                }
+            }
+        }
+
+        return riderToTime;
+    }
+
+    public int[] sortRidersByTotalRaceTime(HashMap<Integer, LocalTime> riderToTime)
+    {
+        // Make an ArrayList containing all of the finishing times; sort it
+        ArrayList<LocalTime> sortedFinishes = new ArrayList<LocalTime>(riderToTime.values());
+        Collections.sort(sortedFinishes);
+
+        // Make an array of the same size as sortedFinishes to match the return type
+        // This will contain the Riders IDs sorted by rank.
+        // Create a variable to track the position in the array to ensure an index error doesn't occur.
+        int[] sortedRiders = new int[sortedFinishes.size()];
+        int sortedRidersIndex = 0;
+
+        // Iterate over the sorted finishing times...
+        for (LocalTime finish : sortedFinishes)
+        {
+            // Iterate a second time, over the key set of the list of rider IDs
+            for (int key : riderToTime.keySet())
+            {
+                // Check if the rider has the same time as the sorted time
+                // If they do, the rider ID will be matched to the same index
+                // belonging to the finishing time (so it will be indexed by
+                // its rank).
+                if (finish.equals(riderToTime.get(key)) && sortedRidersIndex < sortedRiders.length)
+                {
+                    // Assign the rider ID (key) to the correct index, increment the index for the
+                    // next pass.
+                    sortedRiders[sortedRidersIndex] = key;
+                    sortedRidersIndex++;
+                }
+            }
+        }
+
+        return sortedRiders;
+    }
+
+    public int[] getAnyTypeOfRidersPointsInRace(int raceId, String type) throws IDNotRecognisedException
+    {
+        HashMap<Integer, LocalTime> riderToTime = this.getRiderToTotalRaceTimeMap(raceId);
+        int[] sortedRiders = this.sortRidersByTotalRaceTime(riderToTime);
+        int[] pointsSortedByRiderRank = new int[sortedRiders.length];
+        for (Stage stage : this.stages)
+        {
+            int[] sortedRidersOfStage = this.getRidersRankInStage(stage.getId());
+
+            if (stage.getRaceId() == raceId)
+            {
+                HashMap<Integer, ArrayList<LocalTime>> riderResults = stage.getRiderResults();
+                for (int key : riderResults.keySet())
+                {
+                    int keyIndexInSortedRiders = this.intLinearSearch(sortedRiders, key);
+                    if (keyIndexInSortedRiders != -1)
+                    {
+                        int keyIndexInStageRank = this.intLinearSearch(sortedRidersOfStage, key);
+                        if (keyIndexInStageRank != -1)
+                        {
+                            if (type == "Mountain")
+                            {
+                                pointsSortedByRiderRank[keyIndexInSortedRiders] += this.getRidersMountainPointsInStage(stage.getId())[keyIndexInStageRank];
+                            }
+                            else if (type == "Standard")
+                            {
+                                pointsSortedByRiderRank[keyIndexInSortedRiders] += this.getRidersMountainPointsInStage(stage.getId())[keyIndexInStageRank];
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return pointsSortedByRiderRank;
+    }
+
+    public int[] getAnyTypeOfRidersPointClassificationRank(int raceId, String type) throws IDNotRecognisedException
+    {
+        ArrayList<Integer> riders = new ArrayList<>();
+        ArrayList<Integer> points = new ArrayList<>();
+        for (Stage stage : this.stages)
+        {
+            if (stage.getRaceId() == raceId)
+            {
+                int[] sortedRidersInStage = this.getRidersRankInStage(stage.getId());
+                int[] pointsSortedByRiderRankInStage = new int[sortedRidersInStage.length];
+
+                if (type == "Mountain")
+                {
+                    pointsSortedByRiderRankInStage = this.getRidersMountainPointsInStage(stage.getId());
+                }
+                else if (type == "Standard")
+                {
+                    pointsSortedByRiderRankInStage = this.getRidersPointsInStage(stage.getId());
+                }
+
+                for (int i=0; i<sortedRidersInStage.length; i++)
+                {
+                    int riderIndex;
+                    try {
+                        riderIndex = riders.get(sortedRidersInStage[i]);
+                    }
+                    catch (ArrayIndexOutOfBoundsException e)
+                    {
+                        // !
+                        riderIndex = i;
+                        riders.set(i, sortedRidersInStage[i]);
+                    }
+
+                    try {
+                        points.set(riderIndex, points.get(riderIndex) + pointsSortedByRiderRankInStage[i]);
+                    }
+                    catch (ArrayIndexOutOfBoundsException e)
+                    {
+                        points.set(riderIndex, pointsSortedByRiderRankInStage[i]);
+                    }
+                }
+            }
+        }
+
+        ArrayList<Integer> sortedPoints = points;
+        Collections.sort(sortedPoints);
+        int[] ridersSortedByPoints = new int[sortedPoints.size()];
+        for (int i=0; i<sortedPoints.size(); i++)
+        {
+            ridersSortedByPoints[i] = riders.get(points.get(sortedPoints.get(i)));
+        }
+        return ridersSortedByPoints;
+    }
+
+    public int intLinearSearch(int[] arr, int value)
+    {
+        for (int i = 0; i < arr.length; i++)
+        {
+            if (arr[i] == value)
+            {
+                return i;
+            }
+        }
+        return -1;
+    }
+
     // Pre-existing Methods
 	@Override
 	public int[] getRaceIds() {
@@ -218,7 +418,6 @@ public class CyclingPortal implements CyclingPortalInterface {
 	@Override
 	public void removeRaceById(int raceId) throws IDNotRecognisedException {
         // Removes a race by ID or raises an exception.
-        // ! stages, cascades to segments
 
         Race race = this.getRace(raceId);
 
@@ -229,6 +428,27 @@ public class CyclingPortal implements CyclingPortalInterface {
         }
         else
         {
+            // Cascade through all stages and segments connected to the race by ID.
+
+            // Find the stages linked to this Race
+            for (Stage stage : this.stages)
+            {
+                if (stage.getRaceId() == raceId)
+                {
+                    // Find the segments linked to these stages
+                    for (Segment segment : this.segments)
+                    {
+                        if (segment.getStageId() == stage.getId())
+                        {
+                            // Delete the segments
+                            this.segments.remove(segment);
+                        }
+                    }
+                    // Delete the stages
+                    this.stages.remove(stage);
+                }
+            }
+            // Delete the Race.
             this.races.remove(race);
         }
 	}
@@ -366,7 +586,6 @@ public class CyclingPortal implements CyclingPortalInterface {
 	public void removeStageById(int stageId) throws IDNotRecognisedException {
 		Stage stage = this.getStage(stageId);
 
-        // ! segments
         // Need to deal with the fact that stage can be null if it wasn't found in getStage.
         if (stage == null)
         {
@@ -374,6 +593,18 @@ public class CyclingPortal implements CyclingPortalInterface {
         }
         else
         {
+            // Cascade through all segments connected to the stage by ID.
+
+            // Find the segments
+            for (Segment segment : this.segments)
+            {
+                if (segment.getStageId() == stageId)
+                {
+                    // Remove the segments
+                    this.segments.remove(segment);
+                }
+            }
+            // Remove the stage.
             this.stages.remove(stage);
         }
 	}
@@ -449,7 +680,7 @@ public class CyclingPortal implements CyclingPortalInterface {
 	@Override
 	public void removeSegment(int segmentId) throws IDNotRecognisedException, InvalidStageStateException {
         // Finds a segment by ID, then removes it from the segments attribute.
-        // ! stages
+        // Note that any valid rider results already in a stage will become invalid upon the removal of a segment.
 
         Segment segment = this.getSegment(segmentId);
         if (segment == null)
@@ -458,7 +689,14 @@ public class CyclingPortal implements CyclingPortalInterface {
         }
         else
         {
-            this.segments.remove(segment); // !
+            // Edit the stage containing this segment. (orderedSegments needs to be adjusted)
+            Stage stage = this.getStage(segment.getStageId());
+            if (stage != null)
+            {
+                stage.getSegments().remove(segment.getId());
+            }
+
+            this.segments.remove(segment);
         }
 	}
 
@@ -534,7 +772,29 @@ public class CyclingPortal implements CyclingPortalInterface {
 
 	@Override
 	public void removeTeam(int teamId) throws IDNotRecognisedException {
-        // ! riders
+        // Finds the team and removes or throws an exception.
+        Team team = this.getTeam(teamId);
+
+        if (team == null)
+        {
+            throw new IDNotRecognisedException("Team ID doesn't exist.");
+        }
+        else
+        {
+            // Cascade through all riders connected to the team by ID.
+
+            // Find the riders
+            for (Rider rider : this.riders)
+            {
+                if (rider.getTeamId() == teamId)
+                {
+                    // Remove them
+                    this.riders.remove(rider);
+                }
+            }
+            // Remove the team
+            this.teams.remove(team);
+        }
 
         for (int i=0; i<this.teams.size(); i++)
 		{
@@ -610,14 +870,13 @@ public class CyclingPortal implements CyclingPortalInterface {
 
         Rider rider = this.getRider(riderId);
 
-        //
         if (rider == null)
         {
             throw new IDNotRecognisedException("Rider ID doesn't exist.");
         }
         else
         {
-            // !
+            // Remove all rider results from stages
             for (Stage stage : this.stages)
             {
                 HashMap<Integer, ArrayList<LocalTime>> riderResults = stage.getRiderResults();
@@ -631,6 +890,7 @@ public class CyclingPortal implements CyclingPortalInterface {
                 }
             }
 
+            // Remove the rider once this is done
             this.riders.remove(rider);
         }
 	}
@@ -787,7 +1047,7 @@ public class CyclingPortal implements CyclingPortalInterface {
                     // If they do, the rider ID will be matched to the same index
                     // belonging to the finishing time (so it will be indexed by
                     // its rank).
-                    if (finish.equals(riderResults.get(key)) && sortedRidersIndex < sortedRiders.length)
+                    if (finish.equals(riderResults.get(key).get(riderResults.size()-1)) && sortedRidersIndex < sortedRiders.length)
                     {
                         // Assign the rider ID (key) to the correct index, increment the index for the
                         // next pass.
@@ -840,14 +1100,90 @@ public class CyclingPortal implements CyclingPortalInterface {
 
 	@Override
 	public int[] getRidersPointsInStage(int stageId) throws IDNotRecognisedException {
-		// TODO Auto-generated method stub
-		return null;
+        Stage stage = this.getStage(stageId);
+
+        if (stage == null)
+        {
+            throw new IDNotRecognisedException("Stage ID doesn't exist.");
+        }
+        else
+        {
+            int[] ranking = this.getRidersRankInStage(stageId);
+            int[] points = new int[ranking.length];
+            for (int i=0; i < ranking.length; i++)
+            {
+                // Set the points values to the finishing points.
+                points[i] = stagePointsMap.get(stage.getType())[i];
+            }
+            return points;
+        }
 	}
 
 	@Override
 	public int[] getRidersMountainPointsInStage(int stageId) throws IDNotRecognisedException {
-		// TODO Auto-generated method stub
-		return null;
+        // !
+        Stage stage = this.getStage(stageId);
+
+        if (stage == null)
+        {
+            throw new IDNotRecognisedException("Stage ID doesn't exist.");
+        }
+        else
+        {
+            int[] ranking = this.getRidersRankInStage(stageId);
+            int[] points = new int[ranking.length];
+
+            HashMap<Integer, ArrayList<LocalTime>> riderResults = stage.getRiderResults();
+            ArrayList<Integer> segments = stage.getSegments();
+            for (int i=0; i < segments.size(); i++)
+            {
+                Segment segment = this.getSegment(segments.get(i));
+                if (segment != null)
+                {
+                    // Simplify the map to Rider : Checkpoint Time
+                    HashMap<Integer, LocalTime> riderSegmentFinishes = new HashMap<Integer, LocalTime>();
+
+                    // Populate the simplified map with finishing times
+                    for (int key : riderResults.keySet())
+                    {
+                        ArrayList<LocalTime> riderCheckpoints = riderResults.get(key);
+                        riderSegmentFinishes.put(key, riderCheckpoints.get(i));
+                    }
+
+                    // Make an ArrayList containing all of the finishing times; sort it
+                    ArrayList<LocalTime> sortedSegmentFinishes = new ArrayList<LocalTime>(riderSegmentFinishes.values());
+                    Collections.sort(sortedSegmentFinishes);
+
+                    // Create a variable to track the position in the array to ensure an index error doesn't occur.
+                    int[] sortedRiders = new int[sortedSegmentFinishes.size()];
+                    int sortedRidersIndex = 0;
+
+                    // Iterate over the sorted finishing times...
+                    for (LocalTime finish : sortedSegmentFinishes)
+                    {
+                        // Iterate a second time, over the key set of riderResults (i.e. the list of rider IDs)
+                        for (int key : riderResults.keySet())
+                        {
+                            int index = this.intLinearSearch(ranking, key);
+                            // Check if the rider has the same time as the sorted time
+                            // If they do, the rider ID will be matched to the same index
+                            // belonging to the finishing time (so it will be indexed by
+                            // its rank).
+                            if (finish.equals(riderResults.get(key).get(i)) && sortedRidersIndex < sortedRiders.length && index != -1)
+                            {
+                                // Add the correct number of points to the "index"th term of ranking, based on the position...
+                                // ... of the rider in the SEGMENT ranking (sortedRiders)
+                                points[index] += segmentPointsMap.get(segment.getType())[sortedRidersIndex];
+                                sortedRidersIndex++;
+                            }
+                        }
+                    }
+
+
+                }
+            }
+            return points;
+        }
 	}
 
 	@Override
@@ -971,51 +1307,144 @@ public class CyclingPortal implements CyclingPortalInterface {
 
 	@Override
 	public void removeRaceByName(String name) throws NameNotRecognisedException {
-        // Iteratively searches for the first (and only) Race with the given name, and removes it.
-        // !
-        for (int i=0; i < this.races.size(); i++)
+        // Iteratively searches for the first (and only) Race with the given name, and removes it...
+        // ... or throws an exception.
+
+        // Cascade through all stages and segments connected to the race by ID.
+
+        // Find the Race
+
+        boolean raceNameFound = false;
+
+        for (Race race : this.races)
         {
-            if (this.races.get(i).getName() == name)
+            if (race.getName() == name)
             {
-                this.races.remove(i);
+                raceNameFound = true;
+
+                // Find the stages linked to this Race
+                for (Stage stage : this.stages)
+                {
+                    if (stage.getRaceId() == race.getId())
+                    {
+                        // Find the segments linked to these stages
+                        for (Segment segment : this.segments)
+                        {
+                            if (segment.getStageId() == stage.getId())
+                            {
+                                // Delete the segments
+                                this.segments.remove(segment);
+                            }
+                        }
+                        // Delete the stages
+                        this.stages.remove(stage);
+                    }
+                }
+                // Delete the Race.
+                this.races.remove(race);
             }
+        }
+
+        if (!raceNameFound)
+        {
+            throw new NameNotRecognisedException("No Races were found with this name.");
         }
 	}
 
 	@Override
 	public LocalTime[] getGeneralClassificationTimesInRace(int raceId) throws IDNotRecognisedException {
-		// TODO Auto-generated method stub
-		return null;
+		Race race = this.getRace(raceId);
+
+        if (race != null)
+        {
+            HashMap<Integer, LocalTime> riderToTime = this.getRiderToTotalRaceTimeMap(raceId);
+            int[] sortedRiders = this.sortRidersByTotalRaceTime(riderToTime);
+            LocalTime[] sortedTimes = new LocalTime[sortedRiders.length];
+
+            for (int i=0; i<sortedRiders.length; i++)
+            {
+                sortedTimes[i] = riderToTime.get(sortedRiders[i]);
+            }
+
+            return sortedTimes;
+        }
+        else
+        {
+            throw new IDNotRecognisedException("Race ID doesn't exist.");
+        }
 	}
 
 	@Override
 	public int[] getRidersPointsInRace(int raceId) throws IDNotRecognisedException {
-		// TODO Auto-generated method stub
-		return null;
+        Race race = this.getRace(raceId);
+
+        if (race != null)
+        {
+            return getAnyTypeOfRidersPointsInRace(raceId, "Standard");
+        }
+        else
+        {
+            throw new IDNotRecognisedException("Race ID doesn't exist.");
+        }
 	}
 
 	@Override
 	public int[] getRidersMountainPointsInRace(int raceId) throws IDNotRecognisedException {
-		// TODO Auto-generated method stub
-		return null;
+        Race race = this.getRace(raceId);
+
+        if (race != null)
+        {
+            return getAnyTypeOfRidersPointsInRace(raceId, "Mountain");
+        }
+        else
+        {
+            throw new IDNotRecognisedException("Race ID doesn't exist.");
+        }
 	}
 
 	@Override
 	public int[] getRidersGeneralClassificationRank(int raceId) throws IDNotRecognisedException {
-		// TODO Auto-generated method stub
-		return null;
+        Race race = this.getRace(raceId);
+
+        if (race != null)
+        {
+            HashMap<Integer, LocalTime> riderToTime = this.getRiderToTotalRaceTimeMap(raceId);
+            int[] sortedRiders = this.sortRidersByTotalRaceTime(riderToTime);
+
+            return sortedRiders;
+        }
+        else
+        {
+            throw new IDNotRecognisedException("Race ID doesn't exist.");
+        }
 	}
 
 	@Override
 	public int[] getRidersPointClassificationRank(int raceId) throws IDNotRecognisedException {
-		// TODO Auto-generated method stub
-		return null;
+        Race race = this.getRace(raceId);
+
+        if (race != null)
+        {
+            return this.getAnyTypeOfRidersPointClassificationRank(raceId, "Standard");
+        }
+        else
+        {
+            throw new IDNotRecognisedException("Race ID doesn't exist.");
+        }
 	}
 
 	@Override
 	public int[] getRidersMountainPointClassificationRank(int raceId) throws IDNotRecognisedException {
-		// TODO Auto-generated method stub
-		return null;
+        Race race = this.getRace(raceId);
+
+        if (race != null)
+        {
+            return this.getAnyTypeOfRidersPointClassificationRank(raceId, "Mountain");
+        }
+        else
+        {
+            throw new IDNotRecognisedException("Race ID doesn't exist.");
+        }
 	}
 
 }
