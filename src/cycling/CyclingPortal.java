@@ -1,5 +1,7 @@
+// Part of the cycling package
 package cycling;
 
+// Java packages in use
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.FileOutputStream;
@@ -12,19 +14,20 @@ import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
-
+import java.lang.IndexOutOfBoundsException;
 import java.lang.ArrayIndexOutOfBoundsException;
 
 /**
- * BadCyclingPortal is a minimally compiling, but non-functioning implementor
+ * CyclingPortal is an implementor
  * of the CyclingPortalInterface interface.
  *
- * @author Diogo Pacheco
+ * @author
  * @version 1.0
  *
  */
 public class CyclingPortal implements CyclingPortalInterface {
-    // Attributes
+
+    // Instance attributes
     private ArrayList<Race> races;
 	private ArrayList<Stage> stages;
     private ArrayList<Segment> segments;
@@ -32,11 +35,10 @@ public class CyclingPortal implements CyclingPortalInterface {
 	private ArrayList<Team> teams;
     private String outdir;
 
+    // Static attributes
     private static final HashMap<StageType, int[]> stagePointsMap = new HashMap<StageType, int[]>();
-
     // ! Remember to handle indexes out of range - these are 0s
     private static final HashMap<SegmentType, int[]> segmentPointsMap = new HashMap<SegmentType, int[]>();
-
     static {
         stagePointsMap.put(StageType.FLAT,
         new int[]{50, 30, 20, 18, 16, 14, 12, 10, 8, 7, 6, 5, 4, 3, 2});
@@ -387,7 +389,8 @@ public class CyclingPortal implements CyclingPortalInterface {
 
 	@Override
 	public String viewRaceDetails(int raceId) throws IDNotRecognisedException {
-		Race race = this.getRace(raceId);
+        // Displays all the relevant details of a race, formatted.
+        Race race = this.getRace(raceId);
 
         // Need to deal with the fact that getRace returns null if no match is found.
         if (race == null)
@@ -407,10 +410,11 @@ public class CyclingPortal implements CyclingPortalInterface {
                     numberOfStages++;
                     totalLength += stage.getLength();
                 }
+                assert numberOfStages <= this.stages.size();
             }
 
             // Returns the found details in the form of a formatted string.
-            return String.format("Race ID: %i\nName: %s\nDescription: %s\nNumber of Stages: %i\nLength: %d",
+            return String.format("Race ID: %d\nName: %s\nDescription: %s\nNumber of Stages: %d\nLength: %fkm",
             raceId, race.getName(), race.getDescription(), numberOfStages, totalLength);
         }
 	}
@@ -554,15 +558,21 @@ public class CyclingPortal implements CyclingPortalInterface {
         }
         else
         {
-            int[] raceStages = new int[this.stages.size()]; // Upper bound for the length of the array
+            ArrayList<Integer> raceStages = new ArrayList<>();
             for (int i=0; i<this.stages.size(); i++)
             {
-                if (this.stages.get(i).getId() == raceId)
+                if (this.stages.get(i).getRaceId() == raceId)
                 {
-                    raceStages[i] = this.stages.get(i).getId();
+                    raceStages.add(this.stages.get(i).getId());
                 }
             }
-            return raceStages;
+            assert raceStages.size() == this.getNumberOfStages(raceId);
+            int[] raceStagesArray = new int[raceStages.size()];
+            for (int i=0; i<raceStages.size(); i++)
+            {
+                raceStagesArray[i] = raceStages.get(i);
+            }
+            return raceStagesArray;
         }
 	}
 
@@ -623,7 +633,7 @@ public class CyclingPortal implements CyclingPortalInterface {
         }
         else
         {
-            if (location > stage.getLength())
+            if (location > stage.getLength() || location < 0)
             {
                 throw new InvalidLocationException("Segment location is out of the provided stage's bounds.");
             }
@@ -635,7 +645,7 @@ public class CyclingPortal implements CyclingPortalInterface {
 
             if (stage.getType() == StageType.TT)
             {
-                throw new InvalidStageTypeException("Time-trial segments can't contain any segments.");
+                throw new InvalidStageTypeException("Time-trial stages can't contain any segments.");
             }
 
             Segment segment = new Segment(stageId, location, type, averageGradient, length);
@@ -648,7 +658,7 @@ public class CyclingPortal implements CyclingPortalInterface {
 	public int addIntermediateSprintToStage(int stageId, double location) throws IDNotRecognisedException,
 			InvalidLocationException, InvalidStageStateException, InvalidStageTypeException {
 		// Adds a segment without length or averageGradient attributes (sets them to 0), if the necessary
-        // checks succeed. Returns the id of the segment, or -1 if the checks fail.
+        // checks succeed. Returns the id of the segment or throws an error.
         Stage stage = this.getStage(stageId);
         if (stage == null)
         {
@@ -656,7 +666,7 @@ public class CyclingPortal implements CyclingPortalInterface {
         }
         else
         {
-            if (location > stage.getLength())
+            if (location > stage.getLength() || location < 0)
             {
                 throw new InvalidLocationException("Segment location is out of the provided stage's bounds.");
             }
@@ -668,7 +678,7 @@ public class CyclingPortal implements CyclingPortalInterface {
 
             if (stage.getType() == StageType.TT)
             {
-                throw new InvalidStageTypeException("Time-trial segments can't contain any segments.");
+                throw new InvalidStageTypeException("Time-trial stages can't contain any segments.");
             }
 
             Segment segment = new Segment(stageId, location, SegmentType.SPRINT, 0.0, 0.0);
@@ -689,20 +699,14 @@ public class CyclingPortal implements CyclingPortalInterface {
         }
         else
         {
-            // Edit the stage containing this segment. (orderedSegments needs to be adjusted)
-            Stage stage = this.getStage(segment.getStageId());
-            if (stage != null)
-            {
-                stage.getSegments().remove(segment.getId());
-            }
-
             this.segments.remove(segment);
         }
 	}
 
 	@Override
 	public void concludeStagePreparation(int stageId) throws IDNotRecognisedException, InvalidStageStateException {
-        // ! add more prep stuff? and method descriptor
+        // Concludes the preparation of the given stage
+        // ! test whether results can be gotten without this method - shouldnt be possible
         Stage stage = this.getStage(stageId);
         if (stage == null)
         {
@@ -727,15 +731,21 @@ public class CyclingPortal implements CyclingPortalInterface {
         }
         else
         {
-            int[] segments = new int[this.segments.size()]; // Upper bound for number of segments
+            ArrayList<Integer> stageSegments = new ArrayList<>();
             for (int i=0; i<this.segments.size(); i++)
             {
                 if (this.segments.get(i).getStageId() == stageId)
                 {
-                    segments[i] = this.segments.get(i).getId();
+                    stageSegments.add(this.segments.get(i).getId());
                 }
             }
-            return segments;
+
+            int[] stageSegmentsArray = new int[stageSegments.size()];
+            for (int i=0; i<stageSegments.size(); i++)
+            {
+                stageSegmentsArray[i] = stageSegments.get(i);
+            }
+            return stageSegmentsArray;
         }
 	}
 
@@ -927,7 +937,7 @@ public class CyclingPortal implements CyclingPortalInterface {
                 }
             }
 
-            if (checkpoints.length != stage.getSegments().size() + 2)
+            if (checkpoints.length != this.getStageSegments(stageId).size() + 2)
             {
                 // Checkpoints include the start and end points of the race, so 2 more checkpoints than segments are needed.
                 throw new InvalidCheckpointsException("Invalid result: Not all, or too many checkpoints are accounted for.");
@@ -1113,7 +1123,16 @@ public class CyclingPortal implements CyclingPortalInterface {
             for (int i=0; i < ranking.length; i++)
             {
                 // Set the points values to the finishing points.
-                points[i] = stagePointsMap.get(stage.getType())[i];
+                try {
+                    int mapValue = stagePointsMap.get(stage.getType())[i];
+                    points[i] = mapValue;
+                }
+                catch (ArrayIndexOutOfBoundsException e)
+                {
+                    // The array found from stagePointsMap.get(stage.getType()) returned null;
+                    // this means that the number of points scored is 0.
+                    points[i] = 0;
+                }
             }
             return points;
         }
@@ -1134,10 +1153,11 @@ public class CyclingPortal implements CyclingPortalInterface {
             int[] points = new int[ranking.length];
 
             HashMap<Integer, ArrayList<LocalTime>> riderResults = stage.getRiderResults();
-            ArrayList<Integer> segments = stage.getSegments();
-            for (int i=0; i < segments.size(); i++)
+            int[] segments = this.getStageSegments(stageId);
+            Arrays.sort(segments);
+            for (int i=0; i < segments.length; i++)
             {
-                Segment segment = this.getSegment(segments.get(i));
+                Segment segment = this.getSegment(segments[i]);
                 if (segment != null)
                 {
                     // Simplify the map to Rider : Checkpoint Time
@@ -1173,8 +1193,15 @@ public class CyclingPortal implements CyclingPortalInterface {
                             {
                                 // Add the correct number of points to the "index"th term of ranking, based on the position...
                                 // ... of the rider in the SEGMENT ranking (sortedRiders)
-                                points[index] += segmentPointsMap.get(segment.getType())[sortedRidersIndex];
-                                sortedRidersIndex++;
+                                try {
+                                    points[index] += segmentPointsMap.get(segment.getType())[sortedRidersIndex];
+                                    sortedRidersIndex++;
+                                }
+                                catch (IndexOutOfBoundsException e)
+                                {
+                                    // Number of points = 0, by default
+                                    sortedRidersIndex++;
+                                }
                             }
                         }
                     }
